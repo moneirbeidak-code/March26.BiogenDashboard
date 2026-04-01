@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>داشبورد مارس 2026 — زيارات المناديب</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --surface: #111827;
+    --surface2: #1a2236;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --am: #f59e0b;
+    --pm: #3b82f6;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Cairo', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0d1421 0%, #0a1628 50%, #0d1421 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; bottom:0;
+    background: radial-gradient(ellipse at 20% 50%, rgba(0,212,255,0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(124,58,237,0.05) 0%, transparent 60%);
+  }
+  .header-inner { position:relative; z-index:1; display:flex; justify-content:space-between; align-items:center; }
+  .header h1 { font-size:2rem; font-weight:900; letter-spacing:-0.5px; }
+  .header h1 span { color: var(--accent); }
+  .header p { color: var(--muted); font-size:0.9rem; margin-top:4px; font-family:'Tajawal',sans-serif; }
+  .header-badge {
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    padding: 8px 20px;
+    border-radius: 50px;
+    font-size:0.85rem;
+    font-weight:700;
+    letter-spacing:1px;
+  }
+
+  /* NAV TABS */
+  .nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .nav button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 16px 20px;
+    font-family:'Cairo',sans-serif;
+    font-size:0.9rem;
+    cursor:pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space:nowrap;
+    font-weight:600;
+  }
+  .nav button:hover { color: var(--text); }
+  .nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* MAIN */
+  .main { padding: 32px 40px; }
+  .section { display:none; }
+  .section.active { display:block; }
+
+  /* OVERVIEW CARDS */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position:relative;
+    overflow:hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: rgba(0,212,255,0.3); }
+  .card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background: var(--card-color, var(--accent));
+  }
+  .card .icon { font-size:1.8rem; margin-bottom:10px; }
+  .card .value { font-size:2rem; font-weight:900; color:var(--card-color, var(--accent)); line-height:1; }
+  .card .label { font-size:0.78rem; color:var(--muted); margin-top:6px; font-family:'Tajawal',sans-serif; }
+
+  /* GRID LAYOUTS */
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:24px; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:24px; margin-bottom:24px; }
+  @media(max-width:900px) { .grid-2,.grid-3 { grid-template-columns:1fr; } }
+
+  /* CHART BOX */
+  .chart-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .chart-box h3 {
+    font-size:1rem;
+    font-weight:700;
+    margin-bottom:18px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .chart-box h3 .badge {
+    background: rgba(0,212,255,0.1);
+    color: var(--accent);
+    font-size:0.7rem;
+    padding:3px 8px;
+    border-radius:20px;
+    font-weight:600;
+  }
+  .chart-box canvas { max-height:380px; }
+
+  /* CALENDAR SECTION */
+  .cal-wrapper { overflow-x: auto; }
+  .calendar {
+    display: grid;
+    grid-template-columns: 120px repeat(31, minmax(38px, 1fr));
+    gap: 3px;
+    min-width: 900px;
+  }
+  .cal-header {
+    font-size:0.65rem;
+    text-align:center;
+    color:var(--muted);
+    padding:4px 2px;
+    border-radius:4px;
+    font-weight:700;
+  }
+  .cal-header.weekend { color: var(--warning); }
+  .cal-header.friday { color: var(--danger); }
+  .cal-rep {
+    font-size:0.7rem;
+    color:var(--text);
+    padding:4px 8px;
+    display:flex;
+    align-items:center;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    font-family:'Tajawal',sans-serif;
+  }
+  .cal-cell {
+    border-radius:5px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:0.65rem;
+    font-weight:700;
+    height:30px;
+    cursor:default;
+    transition: transform 0.1s;
+    position:relative;
+  }
+  .cal-cell:hover { transform:scale(1.2); z-index:10; }
+  .cal-cell.no-data { background: rgba(255,255,255,0.03); color:transparent; }
+  .cal-cell.day-off { background: rgba(255,255,255,0.02); }
+  .cal-cell.worked { }
+  .cal-cell.outlier-high { ring: 2px solid var(--warning); box-shadow:0 0 0 2px var(--warning); }
+  .cal-cell.outlier-low { box-shadow:0 0 0 2px var(--danger); }
+  .cal-legend { display:flex; gap:16px; margin-top:14px; flex-wrap:wrap; }
+  .cal-legend span { font-size:0.75rem; color:var(--muted); display:flex; align-items:center; gap:6px; }
+  .cal-legend .dot { width:14px; height:14px; border-radius:3px; display:inline-block; }
+
+  /* ALERTS */
+  .alerts-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px; }
+  @media(max-width:700px) { .alerts-grid { grid-template-columns:1fr; } }
+  .alert-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+    border-right:4px solid var(--alert-color, var(--warning));
+  }
+  .alert-box h4 { font-size:0.9rem; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+  .alert-item {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:8px 0;
+    border-bottom:1px solid var(--border);
+    font-size:0.8rem;
+    font-family:'Tajawal',sans-serif;
+  }
+  .alert-item:last-child { border-bottom:none; }
+  .badge-danger { background:rgba(239,68,68,0.15); color:var(--danger); padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+  .badge-warn { background:rgba(245,158,11,0.15); color:var(--warning); padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+  .badge-ok { background:rgba(16,185,129,0.15); color:var(--accent3); padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+  .badge-info { background:rgba(0,212,255,0.1); color:var(--accent); padding:2px 8px; border-radius:20px; font-size:0.72rem; font-weight:700; }
+
+  /* KPI TABLE */
+  .kpi-table { width:100%; border-collapse:collapse; }
+  .kpi-table th {
+    background:var(--surface2);
+    color:var(--muted);
+    font-size:0.72rem;
+    padding:10px 12px;
+    text-align:center;
+    font-weight:700;
+    border-bottom:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .kpi-table td {
+    padding:10px 12px;
+    text-align:center;
+    font-size:0.82rem;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+    font-family:'Tajawal',sans-serif;
+  }
+  .kpi-table tr:hover td { background:rgba(255,255,255,0.02); }
+  .kpi-table td:first-child { text-align:right; font-weight:600; font-family:'Cairo',sans-serif; }
+  .kpi-bar {
+    height:6px;
+    border-radius:3px;
+    background:var(--border);
+    overflow:hidden;
+    margin-top:4px;
+    width:80px;
+    display:inline-block;
+    vertical-align:middle;
+    margin-right:6px;
+  }
+  .kpi-bar-fill { height:100%; border-radius:3px; }
+
+  /* OUTLIER TABLE */
+  .outlier-card {
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+    transition:all 0.2s;
+  }
+  .outlier-card:hover { border-color:rgba(245,158,11,0.3); }
+  .outlier-card .rep-name { font-size:0.85rem; font-weight:700; }
+  .outlier-card .day-info { font-size:0.75rem; color:var(--muted); margin-top:2px; font-family:'Tajawal',sans-serif; }
+  .outlier-card .visits-count { font-size:1.4rem; font-weight:900; }
+  .outlier-card .zscore { font-size:0.7rem; color:var(--muted); margin-top:2px; }
+
+  /* TOOLTIP */
+  .tooltip {
+    position:fixed;
+    background:var(--surface2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:10px 14px;
+    font-size:0.78rem;
+    pointer-events:none;
+    z-index:1000;
+    display:none;
+    font-family:'Tajawal',sans-serif;
+    box-shadow:0 8px 32px rgba(0,0,0,0.5);
+    min-width:140px;
+  }
+  .tooltip.show { display:block; }
+  .tooltip .t-rep { font-weight:700; font-family:'Cairo',sans-serif; color:var(--accent); margin-bottom:4px; }
+  .tooltip .t-row { display:flex; justify-content:space-between; gap:16px; color:var(--muted); }
+  .tooltip .t-row span:last-child { color:var(--text); font-weight:600; }
+
+  /* SECTION TITLES */
+  .section-title {
+    font-size:0.7rem;
+    font-weight:700;
+    color:var(--muted);
+    letter-spacing:2px;
+    text-transform:uppercase;
+    margin-bottom:20px;
+    padding-bottom:10px;
+    border-bottom:1px solid var(--border);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width:6px; height:6px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:3px; }
+
+  /* Animations */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+  .section.active { animation: fadeUp 0.3s ease forwards; }
+
+  .rep-select-btn {
+    background:var(--surface2);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:6px 14px;
+    border-radius:6px;
+    font-family:'Cairo',sans-serif;
+    font-size:0.8rem;
+    cursor:pointer;
+    margin:3px;
+    transition:all 0.2s;
+  }
+  .rep-select-btn.selected { background:rgba(0,212,255,0.15); border-color:var(--accent); color:var(--accent); }
+  .rep-select-btn:hover { border-color:rgba(0,212,255,0.3); }
+  .filter-bar { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:16px; align-items:center; }
+  .filter-label { font-size:0.78rem; color:var(--muted); margin-left:8px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-inner">
+    <div>
+      <h1>📊 داشبورد <span>مارس 2026</span></h1>
+      <p>تحليل زيارات المناديب — شركة الأدوية</p>
+    </div>
+    <div class="header-badge">18 مندوب · مارس 2026</div>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="active" onclick="showTab('overview')">🏠 نظرة عامة</button>
+  <button onclick="showTab('calendar')">📅 خريطة الحضور</button>
+  <button onclick="showTab('ampm')">🕐 AM / PM</button>
+  <button onclick="showTab('kpis')">📈 KPIs المناديب</button>
+  <button onclick="showTab('alerts')">⚠️ تنبيهات وشذوذات</button>
+</nav>
+
+<div class="main">
+
+<!-- ======================== OVERVIEW ======================== -->
+<div id="overview" class="section active">
+
+  <div class="cards-grid">
+    <div class="card" style="--card-color:#00d4ff">
+      <div class="icon">👁️</div>
+      <div class="value">2,443</div>
+      <div class="label">إجمالي الزيارات المكتملة</div>
+    </div>
+    <div class="card" style="--card-color:#7c3aed">
+      <div class="icon">👥</div>
+      <div class="value">18</div>
+      <div class="label">عدد المناديب</div>
+    </div>
+    <div class="card" style="--card-color:#10b981">
+      <div class="icon">📆</div>
+      <div class="value">24</div>
+      <div class="label">أيام بها زيارات</div>
+    </div>
+    <div class="card" style="--card-color:#f59e0b">
+      <div class="icon">📋</div>
+      <div class="value">7</div>
+      <div class="label">أيام بدون أي زيارات</div>
+    </div>
+    <div class="card" style="--card-color:#ef4444">
+      <div class="icon">🔴</div>
+      <div class="value">15</div>
+      <div class="label">قيم شاذة مكتشفة</div>
+    </div>
+    <div class="card" style="--card-color:#f59e0b">
+      <div class="icon">⏰</div>
+      <div class="value">6</div>
+      <div class="label">حالات عمل خميس/جمعة</div>
+    </div>
+    <div class="card" style="--card-color:#a855f7">
+      <div class="icon">🏆</div>
+      <div class="value">96.9%</div>
+      <div class="label">أعلى KPI (Omnia - Luxor)</div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-box">
+      <h3>📅 الزيارات اليومية — مارس 2026 <span class="badge">كل الأيام</span></h3>
+      <canvas id="dailyChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>👥 عدد المناديب الحاضرين يومياً</h3>
+      <canvas id="repCountChart"></canvas>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="chart-box">
+      <h3>📊 مقارنة إجمالي زيارات المناديب</h3>
+      <canvas id="totalVisitsChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>🗓️ الأيام الغائبة — إجازات مارس 2026</h3>
+      <div style="padding:10px 0">
+        <div style="margin-bottom:12px;padding:12px;background:rgba(239,68,68,0.07);border-radius:8px;border:1px solid rgba(239,68,68,0.2);">
+          <div style="font-size:0.82rem;color:var(--danger);font-weight:700;">📌 إجازة أسبوعية ثابتة</div>
+          <div style="font-size:0.78rem;color:var(--muted);margin-top:6px;font-family:'Tajawal',sans-serif;line-height:1.8">
+            كل <strong style="color:var(--text)">يوم خميس</strong> (5، 12، 19، 26 مارس) وكل <strong style="color:var(--text)">يوم جمعة</strong> (6، 13، 20، 27 مارس) إجازة رسمية أسبوعية.
+          </div>
+        </div>
+        <div class="alert-item" style="border-bottom:1px solid var(--border); padding:10px 0;">
+          <div><span style="color:var(--danger); font-weight:700">18 مارس (الأربعاء)</span><div style="font-size:0.75rem;color:var(--muted);margin-top:2px">إجازة رسمية — بداية فترة الإجازة</div></div>
+          <span class="badge-info">إجازة رسمية</span>
+        </div>
+        <div class="alert-item" style="border-bottom:1px solid var(--border); padding:10px 0;">
+          <div><span style="color:var(--danger); font-weight:700">19 مارس (الخميس)</span><div style="font-size:0.75rem;color:var(--muted);margin-top:2px">إجازة رسمية (خميس + فترة الإجازة)</div></div>
+          <span class="badge-info">إجازة رسمية</span>
+        </div>
+        <div class="alert-item" style="border-bottom:1px solid var(--border); padding:10px 0;">
+          <div><span style="color:var(--danger); font-weight:700">20 مارس (الجمعة)</span><div style="font-size:0.75rem;color:var(--muted);margin-top:2px">إجازة رسمية (جمعة + فترة الإجازة)</div></div>
+          <span class="badge-info">إجازة رسمية</span>
+        </div>
+        <div class="alert-item" style="border-bottom:1px solid var(--border); padding:10px 0;">
+          <div><span style="color:var(--danger); font-weight:700">21 مارس (السبت)</span><div style="font-size:0.75rem;color:var(--muted);margin-top:2px">إجازة رسمية — ضمن فترة الإجازة</div></div>
+          <span class="badge-info">إجازة رسمية</span>
+        </div>
+        <div class="alert-item" style="border-bottom:1px solid var(--border); padding:10px 0;">
+          <div><span style="color:var(--danger); font-weight:700">22 مارس (الأحد)</span><div style="font-size:0.75rem;color:var(--muted);margin-top:2px">إجازة رسمية — ضمن فترة الإجازة</div></div>
+          <span class="badge-info">إجازة رسمية</span>
+        </div>
+        <div class="alert-item" style="padding:10px 0;">
+          <div><span style="color:var(--danger); font-weight:700">23 مارس (الاثنين)</span><div style="font-size:0.75rem;color:var(--muted);margin-top:2px">إجازة رسمية — نهاية فترة الإجازة</div></div>
+          <span class="badge-info">إجازة رسمية</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======================== CALENDAR ======================== -->
+<div id="calendar" class="section">
+  <div class="section-title">خريطة حضور المناديب — كل يوم في مارس</div>
+
+  <div style="margin-bottom:16px;padding:14px;background:var(--surface);border:1px solid var(--border);border-radius:10px;font-size:0.82rem;font-family:'Tajawal',sans-serif;line-height:1.8">
+    <strong style="color:var(--accent)">كيف تقرأ الخريطة:</strong> كل خلية تمثل عدد الزيارات المكتملة لمندوب في يوم معين. الخلايا المحاطة بإطار أصفر قيم مرتفعة شاذة، والحمراء قيم منخفضة شاذة.
+  </div>
+
+  <div class="chart-box">
+    <div class="cal-wrapper">
+      <div class="calendar" id="calGrid"></div>
+    </div>
+    <div class="cal-legend">
+      <span><span class="dot" style="background:#1a3a5c"></span> 1-5 زيارات</span>
+      <span><span class="dot" style="background:#1a5c8a"></span> 6-8 زيارات</span>
+      <span><span class="dot" style="background:#0080b3"></span> 9-11 زيارات</span>
+      <span><span class="dot" style="background:#00a8cc"></span> 12-14 زيارات</span>
+      <span><span class="dot" style="background:#00d4ff"></span> 15+ زيارات</span>
+      <span><span class="dot" style="background:rgba(255,255,255,0.05);border:1px solid var(--border)"></span> لم يعمل</span>
+      <span><span class="dot" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2)"></span> إجازة رسمية</span>
+      <span><span class="dot" style="background:#1a1a2e;box-shadow:0 0 0 2px var(--warning)"></span> شاذ مرتفع ↑</span>
+      <span><span class="dot" style="background:#1a1a2e;box-shadow:0 0 0 2px var(--danger)"></span> شاذ منخفض ↓</span>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== AM/PM ======================== -->
+<div id="ampm" class="section">
+  <div class="section-title">توزيع زيارات AM و PM لكل مندوب</div>
+
+  <div class="chart-box">
+    <h3>🌅 AM مقابل 🌇 PM — عدد الزيارات</h3>
+    <canvas id="ampmChart" style="max-height:500px"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <h3>🌅 عدد زيارات AM لكل مندوب</h3>
+    <div style="overflow-x:auto">
+      <table class="kpi-table" id="amTable">
+        <thead><tr>
+          <th>المندوب</th>
+          <th>زيارات AM</th>
+          <th>زيارات PM</th>
+          <th>الإجمالي</th>
+          <th>نسبة AM</th>
+        </tr></thead>
+        <tbody id="amTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;padding:14px;background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.2);border-radius:10px;font-size:0.82rem;font-family:'Tajawal',sans-serif;line-height:1.8">
+    <strong style="color:var(--warning)">⚠️ ملاحظة:</strong> المناديب التالية لديهم صفر زيارات AM على مدار الشهر كله:
+    <strong style="color:var(--danger)"> Fatma (Sherbin) · Hossam (El Mahala) · Rehab Nasser (Nag Hammadi) · Toqa (Ismaillia)</strong>
+    — وده يستحق المراجعة هل ده طبيعي في مناطقهم ولا في مشكلة في تسجيل البيانات.
+  </div>
+</div>
+
+<!-- ======================== KPIS ======================== -->
+<div id="kpis" class="section">
+  <div class="section-title">مؤشرات الأداء — KPIs مارس 2026</div>
+
+  <div class="grid-2">
+    <div class="chart-box">
+      <h3>🏆 AvgKPI % — ترتيب المناديب</h3>
+      <canvas id="kpiAvgChart"></canvas>
+    </div>
+    <div class="chart-box">
+      <h3>📊 Coverage % vs Strike Rate %</h3>
+      <canvas id="coverageChart"></canvas>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3>📆 أيام العمل الفعلية لكل مندوب في مارس</h3>
+    <canvas id="workedDaysChart" style="max-height:360px"></canvas>
+  </div>
+
+  <div class="chart-box">
+    <h3>📋 جدول KPIs التفصيلي</h3>
+    <div style="overflow-x:auto">
+    <table class="kpi-table" id="kpiTable"></table>
+    </div>
+  </div>
+</div>
+
+<!-- ======================== ALERTS ======================== -->
+<div id="alerts" class="section">
+  <div class="section-title">تنبيهات وقيم شاذة</div>
+
+  <div class="alerts-grid">
+    <!-- Thu/Fri Work -->
+    <div class="alert-box" style="--alert-color:#f59e0b">
+      <h4>⚠️ مناديب اشتغلوا الخميس أو الجمعة</h4>
+      <div id="thuFriList"></div>
+    </div>
+
+    <!-- Low attendance days -->
+    <div class="alert-box" style="--alert-color:#ef4444">
+      <h4>📉 أيام قليل فيها المناديب (أقل من 10)</h4>
+      <div id="lowDaysList"></div>
+    </div>
+  </div>
+
+  <div class="chart-box">
+    <h3>🔴 القيم الشاذة — زيارات غير طبيعية لمناديب (Z-Score > 2)</h3>
+    <div class="grid-2" id="outliersGrid" style="margin-bottom:0"></div>
+  </div>
+
+  <div class="chart-box" style="margin-top:24px">
+    <h3>📅 أيام بها أعداد زيارات كلية شاذة</h3>
+    <canvas id="anomalyChart"></canvas>
+  </div>
+
+</div>
+
+</div>
+
+<div class="tooltip" id="tooltip">
+  <div class="t-rep" id="t-rep"></div>
+  <div class="t-row"><span>اليوم:</span><span id="t-day"></span></div>
+  <div class="t-row"><span>الزيارات:</span><span id="t-visits"></span></div>
+  <div class="t-row"><span>اليوم في الأسبوع:</span><span id="t-dayname"></span></div>
+</div>
+
+<script>
+Chart.defaults.color = '#64748b';
+Chart.defaults.borderColor = '#1e2d45';
+Chart.defaults.font.family = "'Cairo', sans-serif";
+
+// ============ DATA ============
+const AM_PM = {"Ahmed Rashad (sohag)": {"AM": 6, "PM": 141}, "Aya (Sharkeia 00)": {"AM": 7, "PM": 123}, "Belala (Frensh Line)": {"AM": 9, "PM": 151}, "Fatma (Sherbin)": {"AM": 0, "PM": 102}, "Hossam (El Mahala)": {"AM": 0, "PM": 140}, "Jasmen (Port Said)": {"AM": 16, "PM": 163}, "Madonna (Damitta)": {"AM": 10, "PM": 136}, "Mariam (Center Assuit)": {"AM": 13, "PM": 146}, "Moh Abd Elazem (Mansoura)": {"AM": 1, "PM": 79}, "Mohrael (sohag)": {"AM": 15, "PM": 141}, "Nareman (Sharkeia 00)": {"AM": 16, "PM": 132}, "Omnia (Luxor)": {"AM": 6, "PM": 171}, "Reem (Sharkeia 00)": {"AM": 1, "PM": 128}, "Rehab Kamel (Sohag)": {"AM": 14, "PM": 98}, "Rehab Nasser (Nag Hammadi)": {"AM": 0, "PM": 128}, "Toqa (Ismaillia)": {"AM": 0, "PM": 87}, "Youmna (Met Gamr)": {"AM": 5, "PM": 111}, "Yousef (Assuit)": {"AM": 11, "PM": 136}};
+
+const WORKED_DAYS = {"Ahmed Rashad (sohag)": [7, 8, 9, 10, 11, 15, 16, 17, 24, 25, 28, 29, 30, 31], "Aya (Sharkeia 00)": [1, 2, 3, 4, 7, 9, 10, 12, 14, 15, 17, 24, 28, 30, 31], "Belala (Frensh Line)": [1, 2, 3, 4, 7, 8, 9, 10, 11, 14, 15, 16, 17, 28, 29, 30, 31], "Fatma (Sherbin)": [2, 3, 7, 9, 10, 11, 14, 15, 16, 17, 18, 24, 28], "Hossam (El Mahala)": [5, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 24, 28, 29, 30], "Jasmen (Port Said)": [1, 3, 4, 7, 8, 9, 10, 11, 14, 15, 16, 17, 18, 28, 29, 30], "Madonna (Damitta)": [1, 2, 3, 4, 7, 8, 9, 10, 11, 14, 15, 16, 17, 24, 28, 29, 30, 31], "Mariam (Center Assuit)": [4, 7, 8, 9, 10, 11, 14, 15, 16, 17, 24, 25, 28, 29, 30, 31], "Moh Abd Elazem (Mansoura)": [1, 2, 3, 4, 7, 8, 9, 10, 11, 14, 15, 16, 17, 25, 27, 28, 29], "Mohrael (sohag)": [7, 8, 9, 10, 11, 14, 15, 16, 17, 24, 25, 26, 28, 29, 31], "Nareman (Sharkeia 00)": [1, 2, 4, 7, 8, 10, 11, 14, 15, 16, 24, 28, 29, 31], "Omnia (Luxor)": [7, 8, 9, 10, 11, 14, 15, 16, 17, 24, 25, 28, 29, 30, 31], "Reem (Sharkeia 00)": [2, 3, 4, 5, 8, 9, 11, 15, 16, 17, 18, 24, 28, 29, 30, 31], "Rehab Kamel (Sohag)": [7, 8, 9, 10, 11, 14, 15, 16, 17, 24, 25, 28, 29, 30, 31], "Rehab Nasser (Nag Hammadi)": [7, 10, 11, 14, 15, 16, 24, 25, 28, 29, 30, 31], "Toqa (Ismaillia)": [1, 2, 3, 7, 8, 24, 25], "Youmna (Met Gamr)": [4, 7, 8, 9, 10, 11, 14, 15, 24, 28, 29, 30, 31], "Yousef (Assuit)": [8, 9, 10, 11, 14, 15, 17, 24, 25, 28, 29, 30, 31]};
+
+const DAILY_VISITS = {"Ahmed Rashad (sohag)": {"7": 9, "8": 10, "9": 10, "10": 8, "11": 9, "15": 13, "16": 9, "17": 10, "24": 13, "25": 11, "28": 10, "29": 12, "30": 13, "31": 10}, "Aya (Sharkeia 00)": {"1": 9, "2": 7, "3": 7, "4": 9, "7": 6, "9": 17, "10": 10, "12": 7, "14": 8, "15": 9, "17": 6, "24": 9, "28": 9, "30": 11, "31": 6}, "Belala (Frensh Line)": {"1": 11, "2": 6, "3": 13, "4": 7, "7": 6, "8": 10, "9": 10, "10": 10, "11": 12, "14": 7, "15": 6, "16": 11, "17": 10, "28": 7, "29": 10, "30": 13, "31": 11}, "Fatma (Sherbin)": {"2": 9, "3": 16, "7": 10, "9": 6, "10": 5, "11": 7, "14": 6, "15": 5, "16": 8, "17": 8, "18": 6, "24": 7, "28": 9}, "Hossam (El Mahala)": {"5": 25, "7": 8, "8": 7, "9": 8, "10": 7, "11": 7, "12": 1, "14": 7, "15": 10, "16": 5, "17": 7, "18": 6, "24": 7, "28": 13, "29": 11, "30": 11}, "Jasmen (Port Said)": {"1": 9, "3": 21, "4": 10, "7": 11, "8": 7, "9": 13, "10": 9, "11": 8, "14": 9, "15": 12, "16": 11, "17": 13, "18": 10, "28": 10, "29": 13, "30": 13}, "Madonna (Damitta)": {"1": 11, "2": 10, "3": 4, "4": 10, "7": 6, "8": 7, "9": 10, "10": 5, "11": 5, "14": 8, "15": 11, "16": 7, "17": 6, "24": 9, "28": 8, "29": 11, "30": 7, "31": 11}, "Mariam (Center Assuit)": {"4": 10, "7": 4, "8": 10, "9": 12, "10": 4, "11": 8, "14": 12, "15": 12, "16": 13, "17": 10, "24": 12, "25": 9, "28": 11, "29": 12, "30": 10, "31": 10}, "Moh Abd Elazem (Mansoura)": {"1": 4, "2": 4, "3": 6, "4": 7, "7": 7, "8": 5, "9": 4, "10": 7, "11": 5, "14": 3, "15": 3, "16": 5, "17": 4, "25": 2, "27": 1, "28": 1, "29": 12}, "Mohrael (sohag)": {"7": 11, "8": 12, "9": 12, "10": 7, "11": 13, "14": 11, "15": 11, "16": 12, "17": 11, "24": 8, "25": 12, "26": 1, "28": 12, "29": 11, "31": 12}, "Nareman (Sharkeia 00)": {"1": 8, "2": 8, "4": 15, "7": 8, "8": 10, "10": 11, "11": 8, "14": 10, "15": 9, "16": 9, "24": 8, "28": 3, "29": 10, "31": 31}, "Omnia (Luxor)": {"7": 13, "8": 12, "9": 11, "10": 10, "11": 11, "14": 10, "15": 11, "16": 10, "17": 13, "24": 11, "25": 14, "28": 12, "29": 12, "30": 16, "31": 11}, "Reem (Sharkeia 00)": {"2": 12, "3": 1, "4": 8, "5": 7, "8": 7, "9": 7, "11": 15, "15": 7, "16": 6, "17": 7, "18": 6, "24": 9, "28": 8, "29": 9, "30": 9, "31": 11}, "Rehab Kamel (Sohag)": {"7": 6, "8": 8, "9": 7, "10": 6, "11": 7, "14": 6, "15": 8, "16": 5, "17": 6, "24": 10, "25": 5, "28": 9, "29": 10, "30": 10, "31": 9}, "Rehab Nasser (Nag Hammadi)": {"7": 10, "10": 15, "11": 11, "14": 9, "15": 10, "16": 10, "24": 10, "25": 12, "28": 11, "29": 9, "30": 11, "31": 10}, "Toqa (Ismaillia)": {"1": 9, "2": 3, "3": 11, "7": 3, "8": 3, "24": 41, "25": 17}, "Youmna (Met Gamr)": {"4": 6, "7": 9, "8": 8, "9": 10, "10": 11, "11": 8, "14": 8, "15": 7, "24": 9, "28": 9, "29": 10, "30": 11, "31": 10}, "Yousef (Assuit)": {"8": 8, "9": 11, "10": 15, "11": 10, "14": 12, "15": 11, "17": 16, "24": 14, "25": 1, "28": 9, "29": 15, "30": 1, "31": 24}};
+
+const DAY_DATA = [{"day": 1, "name": "Sunday", "total": 61, "rep_count": 7}, {"day": 2, "name": "Monday", "total": 59, "rep_count": 8}, {"day": 3, "name": "Tuesday", "total": 79, "rep_count": 8}, {"day": 4, "name": "Wednesday", "total": 82, "rep_count": 9}, {"day": 5, "name": "Thursday", "total": 32, "rep_count": 2}, {"day": 7, "name": "Saturday", "total": 127, "rep_count": 16}, {"day": 8, "name": "Sunday", "total": 124, "rep_count": 15}, {"day": 9, "name": "Monday", "total": 148, "rep_count": 15}, {"day": 10, "name": "Tuesday", "total": 140, "rep_count": 16}, {"day": 11, "name": "Wednesday", "total": 144, "rep_count": 16}, {"day": 12, "name": "Thursday", "total": 8, "rep_count": 2}, {"day": 14, "name": "Saturday", "total": 126, "rep_count": 15}, {"day": 15, "name": "Sunday", "total": 155, "rep_count": 17}, {"day": 16, "name": "Monday", "total": 121, "rep_count": 14}, {"day": 17, "name": "Tuesday", "total": 127, "rep_count": 14}, {"day": 18, "name": "Wednesday", "total": 28, "rep_count": 4}, {"day": 24, "name": "Tuesday", "total": 177, "rep_count": 15}, {"day": 25, "name": "Wednesday", "total": 83, "rep_count": 9}, {"day": 26, "name": "Thursday", "total": 1, "rep_count": 1}, {"day": 27, "name": "Friday", "total": 1, "rep_count": 1}, {"day": 28, "name": "Saturday", "total": 151, "rep_count": 17}, {"day": 29, "name": "Sunday", "total": 167, "rep_count": 15}, {"day": 30, "name": "Monday", "total": 136, "rep_count": 13}, {"day": 31, "name": "Tuesday", "total": 166, "rep_count": 13}];
+
+const OUTLIERS = [{"rep": "Aya (Sharkeia 00)", "day": 9, "visits": 17, "zscore": 3.01, "dayName": "Monday"}, {"rep": "Fatma (Sherbin)", "day": 3, "visits": 16, "zscore": 2.8, "dayName": "Tuesday"}, {"rep": "Hossam (El Mahala)", "day": 5, "visits": 25, "zscore": 3.17, "dayName": "Thursday"}, {"rep": "Jasmen (Port Said)", "day": 3, "visits": 21, "zscore": 3.04, "dayName": "Tuesday"}, {"rep": "Mariam (Center Assuit)", "day": 7, "visits": 4, "zscore": -2.22, "dayName": "Saturday"}, {"rep": "Mariam (Center Assuit)", "day": 10, "visits": 4, "zscore": -2.22, "dayName": "Tuesday"}, {"rep": "Moh Abd Elazem (Mansoura)", "day": 29, "visits": 12, "zscore": 2.74, "dayName": "Sunday"}, {"rep": "Mohrael (sohag)", "day": 26, "visits": 1, "zscore": -3.09, "dayName": "Thursday"}, {"rep": "Nareman (Sharkeia 00)", "day": 31, "visits": 31, "zscore": 3.19, "dayName": "Tuesday"}, {"rep": "Omnia (Luxor)", "day": 30, "visits": 16, "zscore": 2.54, "dayName": "Monday"}, {"rep": "Reem (Sharkeia 00)", "day": 3, "visits": 1, "zscore": -2.32, "dayName": "Tuesday"}, {"rep": "Reem (Sharkeia 00)", "day": 11, "visits": 15, "zscore": 2.28, "dayName": "Wednesday"}, {"rep": "Rehab Nasser (Nag Hammadi)", "day": 10, "visits": 15, "zscore": 2.68, "dayName": "Tuesday"}, {"rep": "Toqa (Ismaillia)", "day": 24, "visits": 41, "zscore": 2.09, "dayName": "Tuesday"}, {"rep": "Yousef (Assuit)", "day": 31, "visits": 24, "zscore": 2.08, "dayName": "Tuesday"}];
+
+const KPI_DATA = [{"rep": "Ahmed Rashad (sohag)", "workedDays": 14, "doneAll": 147, "coverage": 75.83, "strike": 54.29, "avgKpi": 78.12, "callRateDay": 105.0, "monthlyCallRate": 77.37}, {"rep": "Aya (Sharkeia 00)", "workedDays": 15, "doneAll": 130, "coverage": 62.11, "strike": 51.46, "avgKpi": 67.16, "callRateDay": 86.67, "monthlyCallRate": 68.42}, {"rep": "Belala (Frensh Line)", "workedDays": 17, "doneAll": 160, "coverage": 66.06, "strike": 56.72, "avgKpi": 75.28, "callRateDay": 94.12, "monthlyCallRate": 84.21}, {"rep": "Fatma (Sherbin)", "workedDays": 13, "doneAll": 102, "coverage": 63.81, "strike": 43.4, "avgKpi": 59.84, "callRateDay": 78.46, "monthlyCallRate": 53.68}, {"rep": "Hossam (El Mahala)", "workedDays": 16, "doneAll": 140, "coverage": 70.87, "strike": 55.41, "avgKpi": 71.87, "callRateDay": 87.5, "monthlyCallRate": 73.68}, {"rep": "Jasmen (Port Said)", "workedDays": 16, "doneAll": 179, "coverage": 92.55, "strike": 80.41, "avgKpi": 94.76, "callRateDay": 111.87, "monthlyCallRate": 94.21}, {"rep": "Madonna (Damitta)", "workedDays": 18, "doneAll": 139, "coverage": 81.55, "strike": 58.37, "avgKpi": 72.58, "callRateDay": 77.22, "monthlyCallRate": 73.16}, {"rep": "Mariam (Center Assuit)", "workedDays": 16, "doneAll": 159, "coverage": 66.67, "strike": 51.01, "avgKpi": 75.18, "callRateDay": 99.38, "monthlyCallRate": 83.68}, {"rep": "Moh Abd Elazem (Mansoura)", "workedDays": 17, "doneAll": 80, "coverage": 60.64, "strike": 38.5, "avgKpi": 47.08, "callRateDay": 47.06, "monthlyCallRate": 42.11}, {"rep": "Mohrael (sohag)", "workedDays": 15, "doneAll": 156, "coverage": 67.27, "strike": 57.85, "avgKpi": 77.81, "callRateDay": 104.0, "monthlyCallRate": 82.11}, {"rep": "Nareman (Sharkeia 00)", "workedDays": 14, "doneAll": 148, "coverage": 70.64, "strike": 57.55, "avgKpi": 77.95, "callRateDay": 105.71, "monthlyCallRate": 77.89}, {"rep": "Omnia (Luxor)", "workedDays": 15, "doneAll": 177, "coverage": 96.08, "strike": 80.19, "avgKpi": 96.86, "callRateDay": 118.0, "monthlyCallRate": 93.16}, {"rep": "Reem (Sharkeia 00)", "workedDays": 16, "doneAll": 129, "coverage": 73.27, "strike": 52.29, "avgKpi": 68.52, "callRateDay": 80.63, "monthlyCallRate": 67.89}, {"rep": "Rehab Kamel (Sohag)", "workedDays": 15, "doneAll": 112, "coverage": 59.8, "strike": 47.03, "avgKpi": 60.11, "callRateDay": 74.67, "monthlyCallRate": 58.95}, {"rep": "Rehab Nasser (Nag Hammadi)", "workedDays": 12, "doneAll": 128, "coverage": 61.0, "strike": 49.28, "avgKpi": 71.08, "callRateDay": 106.67, "monthlyCallRate": 67.37}, {"rep": "Toqa (Ismaillia)", "workedDays": 7, "doneAll": 87, "coverage": 71.43, "strike": 43.59, "avgKpi": 71.27, "callRateDay": 124.29, "monthlyCallRate": 45.79}, {"rep": "Youmna (Met Gamr)", "workedDays": 13, "doneAll": 116, "coverage": 82.18, "strike": 53.27, "avgKpi": 71.43, "callRateDay": 89.23, "monthlyCallRate": 61.05}, {"rep": "Yousef (Assuit)", "workedDays": 13, "doneAll": 147, "coverage": 68.0, "strike": 56.06, "avgKpi": 78.63, "callRateDay": 113.08, "monthlyCallRate": 77.37}];
+
+const THU_FRI = [{"rep": "Aya (Sharkeia 00)", "day": 12, "dayName": "Thursday", "visits": 7}, {"rep": "Hossam (El Mahala)", "day": 5, "dayName": "Thursday", "visits": 25}, {"rep": "Hossam (El Mahala)", "day": 12, "dayName": "Thursday", "visits": 1}, {"rep": "Moh Abd Elazem (Mansoura)", "day": 27, "dayName": "Friday", "visits": 1}, {"rep": "Mohrael (sohag)", "day": 26, "dayName": "Thursday", "visits": 1}, {"rep": "Reem (Sharkeia 00)", "day": 5, "dayName": "Thursday", "visits": 7}];
+
+const DAY_NAMES_AR = {Sunday:'أحد', Monday:'اثنين', Tuesday:'ثلاثاء', Wednesday:'أربعاء', Thursday:'خميس', Friday:'جمعة', Saturday:'سبت'};
+const REPS = Object.keys(DAILY_VISITS);
+
+// =========== NAV ===========
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// =========== COLOR ===========
+function visitColor(v) {
+  if (!v) return 'rgba(255,255,255,0.03)';
+  if (v <= 5) return '#1a3a5c';
+  if (v <= 8) return '#1a5c8a';
+  if (v <= 11) return '#0080b3';
+  if (v <= 14) return '#00a8cc';
+  return '#00d4ff';
+}
+function kpiColor(v) {
+  if (v >= 80) return '#10b981';
+  if (v >= 60) return '#f59e0b';
+  return '#ef4444';
+}
+
+// =========== CALENDAR ===========
+function buildCalendar() {
+  const grid = document.getElementById('calGrid');
+  const allDays = Array.from({length:31}, (_,i)=>i+1);
+
+  // Outlier lookup
+  const outlierHigh = new Set(), outlierLow = new Set();
+  OUTLIERS.forEach(o => {
+    if (o.zscore > 0) outlierHigh.add(o.rep+'|'+o.day);
+    else outlierLow.add(o.rep+'|'+o.day);
+  });
+
+  // Header row
+  const corner = document.createElement('div');
+  corner.className = 'cal-header';
+  corner.textContent = 'المندوب';
+  grid.appendChild(corner);
+
+  // March 2026 day name map (manually since DAY_DATA only has days with visits)
+  const fullDayNames = {1:'Sunday',2:'Monday',3:'Tuesday',4:'Wednesday',5:'Thursday',6:'Friday',7:'Saturday',8:'Sunday',9:'Monday',10:'Tuesday',11:'Wednesday',12:'Thursday',13:'Friday',14:'Saturday',15:'Sunday',16:'Monday',17:'Tuesday',18:'Wednesday',19:'Thursday',20:'Friday',21:'Saturday',22:'Sunday',23:'Monday',24:'Tuesday',25:'Wednesday',26:'Thursday',27:'Friday',28:'Saturday',29:'Sunday',30:'Monday',31:'Tuesday'};
+  const OFFICIAL_HOLIDAY_DAYS = new Set([5,6,12,13,18,19,20,21,22,23,26,27]);
+  allDays.forEach(d => {
+    const dname = fullDayNames[d] || '';
+    const isHoliday = OFFICIAL_HOLIDAY_DAYS.has(d);
+    const el = document.createElement('div');
+    let cls = 'cal-header';
+    if (dname==='Friday') cls += ' friday';
+    else if (dname==='Thursday') cls += ' friday';
+    else if (isHoliday) cls += ' friday';
+    else if (dname==='Saturday') cls += ' weekend';
+    el.className = cls;
+    const arName = DAY_NAMES_AR[dname] || '';
+    el.innerHTML = `<div style="font-size:0.8em">${d}</div><div style="font-size:0.6em">${arName}${isHoliday&&dname!=='Thursday'&&dname!=='Friday'?'🔴':''}</div>`;
+    grid.appendChild(el);
+  });
+
+  // Rep rows
+  REPS.forEach(rep => {
+    const repEl = document.createElement('div');
+    repEl.className = 'cal-rep';
+    repEl.textContent = rep.replace(' (', '\n(');
+    repEl.style.fontSize = '0.68rem';
+    grid.appendChild(repEl);
+
+    allDays.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'cal-cell';
+      const v = DAILY_VISITS[rep][d];
+      const key = rep+'|'+d;
+      const dayName = fullDayNames[d] || '';
+      const isHoliday = OFFICIAL_HOLIDAY_DAYS.has(d);
+
+      if (!v) {
+        el.classList.add('no-data');
+        if (isHoliday) el.style.background = 'rgba(239,68,68,0.08)';
+        else el.style.background = 'rgba(255,255,255,0.02)';
+      } else {
+        el.style.background = visitColor(v);
+        el.style.color = v > 11 ? '#fff' : '#a0c8e0';
+        el.textContent = v;
+        if (outlierHigh.has(key)) el.style.boxShadow = '0 0 0 2px #f59e0b';
+        if (outlierLow.has(key)) el.style.boxShadow = '0 0 0 2px #ef4444';
+      }
+
+      // Tooltip
+      el.addEventListener('mousemove', e => {
+        if (!v) return;
+        const tip = document.getElementById('tooltip');
+        tip.classList.add('show');
+        document.getElementById('t-rep').textContent = rep;
+        document.getElementById('t-day').textContent = `${d} مارس`;
+        document.getElementById('t-visits').textContent = v + ' زيارة';
+        document.getElementById('t-dayname').textContent = DAY_NAMES_AR[dayName]||dayName;
+        tip.style.left = (e.clientX+14)+'px';
+        tip.style.top = (e.clientY-10)+'px';
+      });
+      el.addEventListener('mouseleave', () => document.getElementById('tooltip').classList.remove('show'));
+      grid.appendChild(el);
+    });
+  });
+}
+
+// =========== DAILY CHART ===========
+function buildDailyChart() {
+  const labels = DAY_DATA.map(d=>`${d.day}\n${DAY_NAMES_AR[d.name]||''}`);
+  const totals = DAY_DATA.map(d=>d.total);
+  const bgColors = DAY_DATA.map(d=>{
+    if (d.name==='Friday') return 'rgba(239,68,68,0.6)';
+    if (d.name==='Thursday') return 'rgba(245,158,11,0.6)';
+    if (d.rep_count < 5) return 'rgba(239,68,68,0.4)';
+    return 'rgba(0,212,255,0.6)';
+  });
+
+  new Chart(document.getElementById('dailyChart'), {
+    type:'bar',
+    data:{ labels, datasets:[{
+      label:'إجمالي الزيارات',
+      data: totals,
+      backgroundColor: bgColors,
+      borderRadius: 5,
+    }]},
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false}, tooltip:{ callbacks:{
+        title: (items) => `${DAY_DATA[items[0].dataIndex].day} مارس (${DAY_NAMES_AR[DAY_DATA[items[0].dataIndex].name]||''})`,
+        label: (item) => ` الزيارات: ${item.raw}`
+      }}},
+      scales:{
+        x:{ ticks:{font:{size:10}}, grid:{display:false} },
+        y:{ grid:{color:'rgba(255,255,255,0.04)'} }
+      }
+    }
+  });
+}
+
+function buildRepCountChart() {
+  const labels = DAY_DATA.map(d=>`${d.day}/${DAY_NAMES_AR[d.name]?DAY_NAMES_AR[d.name].slice(0,2):''}`);
+  const counts = DAY_DATA.map(d=>d.rep_count);
+  const bgColors = counts.map(c => c<5 ? 'rgba(239,68,68,0.7)' : c<10 ? 'rgba(245,158,11,0.7)' : 'rgba(16,185,129,0.7)');
+
+  new Chart(document.getElementById('repCountChart'), {
+    type:'bar',
+    data:{ labels, datasets:[{
+      label:'عدد المناديب',
+      data: counts,
+      backgroundColor: bgColors,
+      borderRadius: 5,
+    }]},
+    options:{
+      responsive:true,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ ticks:{font:{size:10}}, grid:{display:false} },
+        y:{ max:18, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{stepSize:2} }
+      }
+    }
+  });
+}
+
+function buildTotalVisitsChart() {
+  const sorted = [...KPI_DATA].sort((a,b)=>b.doneAll-a.doneAll);
+  const shortNames = sorted.map(k=>k.rep.replace(/ \(.*\)/,''));
+  new Chart(document.getElementById('totalVisitsChart'), {
+    type:'bar',
+    data:{ labels: shortNames, datasets:[{
+      label:'إجمالي الزيارات',
+      data: sorted.map(k=>k.doneAll),
+      backgroundColor: sorted.map(k=>k.doneAll>=150?'rgba(0,212,255,0.7)':k.doneAll>=120?'rgba(16,185,129,0.7)':'rgba(124,58,237,0.6)'),
+      borderRadius:5
+    }]},
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      plugins:{ legend:{display:false} },
+      scales:{
+        x:{ grid:{color:'rgba(255,255,255,0.04)'} },
+        y:{ ticks:{font:{size:10}} }
+      }
+    }
+  });
+}
+
+// =========== AM/PM CHART ===========
+function buildAmPmChart() {
+  const sorted = [...REPS].sort((a,b)=>((AM_PM[b]?.AM||0)+(AM_PM[b]?.PM||0)) - ((AM_PM[a]?.AM||0)+(AM_PM[a]?.PM||0)));
+  const shortNames = sorted.map(r=>r.replace(/ \(.*\)/,''));
+  new Chart(document.getElementById('ampmChart'), {
+    type:'bar',
+    data:{
+      labels: shortNames,
+      datasets:[
+        { label:'AM', data: sorted.map(r=>AM_PM[r]?.AM||0), backgroundColor:'rgba(245,158,11,0.8)', borderRadius:{topLeft:4,topRight:4}, stack:'s' },
+        { label:'PM', data: sorted.map(r=>AM_PM[r]?.PM||0), backgroundColor:'rgba(59,130,246,0.8)', borderRadius:{bottomLeft:4,bottomRight:4}, stack:'s' }
+      ]
+    },
+    options:{
+      responsive:true,
+      scales:{
+        x:{ stacked:true, grid:{display:false} },
+        y:{ stacked:true, grid:{color:'rgba(255,255,255,0.04)'} }
+      },
+      plugins:{ legend:{labels:{color:'#94a3b8'}} }
+    }
+  });
+
+  // AM Table
+  const tbody = document.getElementById('amTableBody');
+  const sortedByAM = [...REPS].sort((a,b)=>(AM_PM[b]?.AM||0)-(AM_PM[a]?.AM||0));
+  tbody.innerHTML = sortedByAM.map(r => {
+    const am = AM_PM[r]?.AM||0;
+    const pm = AM_PM[r]?.PM||0;
+    const total = am+pm;
+    const pct = total>0?Math.round(am/total*100):0;
+    const noAM = am===0;
+    return `<tr>
+      <td>${r} ${noAM?'<span class="badge-danger" style="font-size:0.65rem;padding:1px 6px">صفر AM</span>':''}</td>
+      <td style="color:${noAM?'var(--danger)':'var(--am)'};font-weight:700">${am}</td>
+      <td style="color:var(--pm);font-weight:700">${pm}</td>
+      <td>${total}</td>
+      <td>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pct}%;background:${noAM?'var(--danger)':'var(--am)'}"></div></div>
+        <span style="color:${noAM?'var(--danger)':'var(--am)'}">${pct}%</span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// =========== KPI CHARTS ===========
+function buildKpiCharts() {
+  const sorted = [...KPI_DATA].sort((a,b)=>b.avgKpi-a.avgKpi);
+  const short = sorted.map(k=>k.rep.replace(/ \(.*\)/,''));
+
+  new Chart(document.getElementById('kpiAvgChart'), {
+    type:'bar',
+    data:{
+      labels:short,
+      datasets:[{ label:'Avg KPI%', data:sorted.map(k=>k.avgKpi),
+        backgroundColor:sorted.map(k=>kpiColor(k.avgKpi)+'bb'), borderRadius:5 }]
+    },
+    options:{
+      indexAxis:'y',
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        x:{max:100, ticks:{callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,0.04)'}},
+        y:{ticks:{font:{size:10}}}
+      }
+    }
+  });
+
+  new Chart(document.getElementById('coverageChart'), {
+    type:'scatter',
+    data:{
+      datasets:[{
+        label:'Coverage vs Strike',
+        data: KPI_DATA.map(k=>({x:k.coverage, y:k.strike, rep:k.rep})),
+        backgroundColor: KPI_DATA.map(k=>k.avgKpi>=80?'rgba(0,212,255,0.8)':k.avgKpi>=60?'rgba(245,158,11,0.8)':'rgba(239,68,68,0.8)'),
+        pointRadius:7, pointHoverRadius:10
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        tooltip:{callbacks:{label:d=>`${d.raw.rep.split(' ')[0]}: Cov=${d.raw.x}% / Strike=${d.raw.y}%`}},
+        legend:{display:false}
+      },
+      scales:{
+        x:{title:{display:true,text:'Coverage %',color:'#64748b'}, min:50,max:100},
+        y:{title:{display:true,text:'Strike Rate %',color:'#64748b'}, min:30, max:90}
+      }
+    }
+  });
+
+  // Worked Days Chart
+  const wdSorted = [...KPI_DATA].sort((a,b)=>b.workedDays-a.workedDays);
+  const maxWorkingDays = 19; // March 2026: total working days (excl all Thu, Fri, and 18-23 holiday)
+  new Chart(document.getElementById('workedDaysChart'), {
+    type:'bar',
+    data:{
+      labels: wdSorted.map(k=>k.rep.replace(/ \(.*\)/,'')),
+      datasets:[
+        { label:'أيام العمل الفعلية', data:wdSorted.map(k=>k.workedDays),
+          backgroundColor:wdSorted.map(k=>k.workedDays>=16?'rgba(16,185,129,0.75)':k.workedDays>=12?'rgba(0,212,255,0.65)':'rgba(239,68,68,0.65)'),
+          borderRadius:5, order:2 },
+        { label:'الأيام المتاحة للعمل (19 يوم)', data:wdSorted.map(()=>maxWorkingDays),
+          type:'line', borderColor:'rgba(245,158,11,0.7)', borderWidth:2, borderDash:[6,4], pointRadius:0, fill:false, order:1 }
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{labels:{color:'#94a3b8'}},
+        tooltip:{callbacks:{label:d=>d.dataset.label===('أيام العمل الفعلية')?` ${d.raw} يوم`:` ${d.raw} يوم (أقصى)`}}
+      },
+      scales:{
+        x:{grid:{display:false}, ticks:{font:{size:10}}},
+        y:{min:0, max:22, grid:{color:'rgba(255,255,255,0.04)'}, ticks:{stepSize:2}}
+      }
+    }
+  });
+  const table = document.getElementById('kpiTable');
+  const sortedT = [...KPI_DATA].sort((a,b)=>b.avgKpi-a.avgKpi);
+  table.innerHTML = `
+  <thead><tr>
+    <th>المندوب</th><th>أيام العمل</th><th>الزيارات الكلية</th>
+    <th>Coverage %</th><th>Strike Rate %</th><th>AvgKPI %</th>
+    <th>Call Rate/Day %</th>
+  </tr></thead>
+  <tbody>${sortedT.map((k,i)=>`
+    <tr>
+      <td>
+        <span style="color:${i<3?'#10b981':i>=15?'#ef4444':'#94a3b8'};font-size:0.75rem;margin-left:6px">${i===0?'🥇':i===1?'🥈':i===2?'🥉':i>=15?'⬇️':''}</span>
+        ${k.rep}
+      </td>
+      <td>${k.workedDays}</td>
+      <td>${k.doneAll}</td>
+      <td>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${k.coverage}%;background:${kpiColor(k.coverage)}"></div></div>
+        <span style="color:${kpiColor(k.coverage)}">${k.coverage}%</span>
+      </td>
+      <td>
+        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${k.strike}%;background:${kpiColor(k.strike)}"></div></div>
+        <span style="color:${kpiColor(k.strike)}">${k.strike}%</span>
+      </td>
+      <td style="font-weight:700;color:${kpiColor(k.avgKpi)}">${k.avgKpi}%</td>
+      <td>${k.callRateDay}%</td>
+    </tr>`).join('')}
+  </tbody>`;
+}
+
+// =========== ALERTS ===========
+function buildAlerts() {
+  // Thu/Fri
+  const tfl = document.getElementById('thuFriList');
+  THU_FRI.forEach(t => {
+    const cls = t.dayName==='Friday'?'badge-danger':'badge-warn';
+    const ar = t.dayName==='Friday'?'جمعة':'خميس';
+    tfl.innerHTML += `<div class="alert-item">
+      <div><strong>${t.rep}</strong><div style="font-size:0.72rem;color:var(--muted)">يوم ${t.day} مارس — ${ar}</div></div>
+      <span class="${cls}">${t.visits} زيارة</span>
+    </div>`;
+  });
+
+  // Low days - sorted by day number, mark official holidays
+  const OFFICIAL_HOLIDAY_DAYS = new Set([5,6,12,13,18,19,20,21,22,23,26,27]);
+  const ldl = document.getElementById('lowDaysList');
+  const lowDays = DAY_DATA.filter(d=>d.rep_count<10).sort((a,b)=>a.day-b.day);
+  lowDays.forEach(d => {
+    const ar = DAY_NAMES_AR[d.name]||d.name;
+    const isHoliday = OFFICIAL_HOLIDAY_DAYS.has(d.day);
+    ldl.innerHTML += `<div class="alert-item">
+      <div>
+        <strong>يوم ${d.day} (${ar})</strong>
+        ${isHoliday?'<span class="badge-info" style="font-size:0.65rem;margin-right:4px">إجازة رسمية</span>':''}
+        <div style="font-size:0.72rem;color:var(--muted)">${d.total} زيارة إجمالي</div>
+      </div>
+      <span class="${isHoliday?'badge-info':d.rep_count<=2?'badge-danger':'badge-warn'}">${d.rep_count} مناديب</span>
+    </div>`;
+  });
+
+  // Outliers grid
+  const og = document.getElementById('outliersGrid');
+  const highOut = OUTLIERS.filter(o=>o.zscore>0).sort((a,b)=>b.zscore-a.zscore);
+  const lowOut = OUTLIERS.filter(o=>o.zscore<0).sort((a,b)=>a.zscore-b.zscore);
+
+  const highDiv = document.createElement('div');
+  highDiv.innerHTML = `<h4 style="font-size:0.85rem;color:var(--warning);margin-bottom:12px">⬆️ زيارات مرتفعة بشكل غير عادي</h4>`;
+  highOut.forEach(o=>{
+    const ar = DAY_NAMES_AR[o.dayName]||o.dayName;
+    highDiv.innerHTML += `<div class="outlier-card">
+      <div>
+        <div class="rep-name">${o.rep}</div>
+        <div class="day-info">يوم ${o.day} مارس — ${ar}</div>
+      </div>
+      <div style="text-align:center">
+        <div class="visits-count" style="color:var(--warning)">${o.visits}</div>
+        <div class="zscore">Z = +${o.zscore}</div>
+      </div>
+    </div>`;
+  });
+
+  const lowDiv = document.createElement('div');
+  lowDiv.innerHTML = `<h4 style="font-size:0.85rem;color:var(--danger);margin-bottom:12px">⬇️ زيارات منخفضة بشكل غير عادي</h4>`;
+  lowOut.forEach(o=>{
+    const ar = DAY_NAMES_AR[o.dayName]||o.dayName;
+    lowDiv.innerHTML += `<div class="outlier-card">
+      <div>
+        <div class="rep-name">${o.rep}</div>
+        <div class="day-info">يوم ${o.day} مارس — ${ar}</div>
+      </div>
+      <div style="text-align:center">
+        <div class="visits-count" style="color:var(--danger)">${o.visits}</div>
+        <div class="zscore">Z = ${o.zscore}</div>
+      </div>
+    </div>`;
+  });
+
+  og.appendChild(highDiv);
+  og.appendChild(lowDiv);
+
+  // Anomaly daily chart
+  const mean = DAY_DATA.reduce((s,d)=>s+d.total,0)/DAY_DATA.length;
+  const std = Math.sqrt(DAY_DATA.reduce((s,d)=>s+(d.total-mean)**2,0)/DAY_DATA.length);
+  new Chart(document.getElementById('anomalyChart'), {
+    type:'bar',
+    data:{
+      labels: DAY_DATA.map(d=>`${d.day}/${DAY_NAMES_AR[d.name]?.slice(0,2)||''}`),
+      datasets:[
+        { label:'الزيارات الكلية', data:DAY_DATA.map(d=>d.total),
+          backgroundColor:DAY_DATA.map(d=>Math.abs(d.total-mean)>1.5*std?'rgba(239,68,68,0.8)':d.total<mean*0.5?'rgba(245,158,11,0.7)':'rgba(0,212,255,0.5)'),
+          borderRadius:5, order:2 },
+        { label:'المتوسط', data:DAY_DATA.map(()=>Math.round(mean)), type:'line', borderColor:'rgba(16,185,129,0.8)', borderWidth:2, borderDash:[5,5], pointRadius:0, fill:false, order:1 }
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{labels:{color:'#94a3b8'}}},
+      scales:{
+        x:{grid:{display:false},ticks:{font:{size:10}}},
+        y:{grid:{color:'rgba(255,255,255,0.04)'}}
+      }
+    }
+  });
+}
+
+// =========== INIT ===========
+buildCalendar();
+buildDailyChart();
+buildRepCountChart();
+buildTotalVisitsChart();
+buildAmPmChart();
+buildKpiCharts();
+buildAlerts();
+</script>
+</body>
+</html>
